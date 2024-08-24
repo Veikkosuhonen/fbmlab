@@ -2,8 +2,8 @@ precision highp float;
 
 uniform vec2 u_resolution;
 uniform sampler2D u_texture;
-uniform float u_gamma;
-uniform float u_exposure;
+uniform float u_gamma; /// default 2.2 min 0.0 max 10.0
+uniform float u_exposure; /// default 1.0 min 0.0 max 10.0
 
 void main() {
   vec2 st = gl_FragCoord.st / u_resolution;

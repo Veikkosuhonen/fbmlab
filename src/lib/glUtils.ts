@@ -107,7 +107,7 @@ export const createProgram = (gl: WebGL2RenderingContext, vertexSource: string, 
 }
 
 
-export const createQuad = (gl: WebGL2RenderingContext, program: WebGLProgram) => {
+export const createQuad = (gl: WebGL2RenderingContext) => {
   const vertices = [-1, -1,   4, -1,   -1, 4]
   const quad = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, quad)
@@ -116,9 +116,5 @@ export const createQuad = (gl: WebGL2RenderingContext, program: WebGLProgram) =>
     new Float32Array(vertices),
     gl.STATIC_DRAW
   )
-
-  const positionAttribute = gl.getAttribLocation(program, "position")
-  gl.enableVertexAttribArray(positionAttribute)
-  gl.vertexAttribPointer(positionAttribute, 2, gl.FLOAT, false, 0, 0)
 }
 

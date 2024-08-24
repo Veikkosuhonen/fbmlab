@@ -1,88 +1,74 @@
 import { createSignal } from "solid-js"
 import { toast } from "~/components/Toasts"
-import { createFrameBuffer, createQuad, TextureFormats } from "./glUtils"
-import { Setting, settings } from "./settingsStore"
+import { TextureFormats } from "./glUtils"
 import basicFragment from "../glsl/basic.frag"
 import hdrFragment from "../glsl/hdr.frag"
-import Shader from "./Shader"
+import Shader, { Uniform, Uniform1f, Uniform1i, Uniform2f, UniformKind } from "./Shader"
+import { GLContext } from "./GLContext"
+import { FrameBuffer } from "./FrameBuffer"
+import { NodeRenderPass } from "./NodeRenderPass"
+import { createStore } from "solid-js/store"
 
-export const [canvasSize, setCanvasSize] = createSignal<number[]>([1280, 1080])
-export const [drawBufferSize, setDrawBufferSize] = createSignal<number[]>([1080, 1080])
+export const [canvasSize, setCanvasSize] = createSignal<[number, number]>([1280, 1080])
+export const [drawBufferSize, setDrawBufferSize] = createSignal<[number, number]>([1080, 1080])
+
+export const [
+  renderPasses,
+  setRenderPasses
+] = createStore<Record<string, NodeRenderPass>>({})
+
+interface UniformUpdater {
+  uniform: Uniform<keyof UniformKind>,
+  update: () => void
+}
+
+const internalUniforms: UniformUpdater[] = []
 
 const initRender = (canvas: HTMLCanvasElement) => {
   const gl: WebGL2RenderingContext|null = canvas.getContext("webgl2")
   if (!gl) throw new Error("WebGL2 not supported")
   gl.getExtension("EXT_color_buffer_float")
 
+  const context = new GLContext(canvas)
+
+  const start = Date.now()
   setCanvasSize([canvas.width, canvas.height])
   setDrawBufferSize([canvas.width, canvas.height])
 
-  const program = Shader.fromFragment(gl, basicFragment, "Basic fragment")
-  const postProgram = Shader.fromFragment(gl, hdrFragment, "HDR")
+  const program = Shader.fromFragment(context, basicFragment, "Basic fragment")
+  const u_resolution = program.uniforms["u_resolution"] as Uniform2f
+  const u_time = program.uniforms["u_time"] as Uniform1f
+  internalUniforms.push({ uniform: u_resolution, update: () => u_resolution.setValue(canvasSize()) })
+  internalUniforms.push({ uniform: u_time, update: () => u_time.setValue((Date.now() - start) / 1000.0) })
 
-  program.use();
-  createQuad(gl, program.program)
+  const hdrFb = new FrameBuffer(context, canvas.width, canvas.height, TextureFormats.HalfFloat)
+  const mainPass = new NodeRenderPass(context, program, hdrFb)
 
+  const hdrProgram = Shader.fromFragment(context, hdrFragment, "HDR")
+  const u_resolution_hdr = hdrProgram.uniforms["u_resolution"] as Uniform2f
+  const u_texture = hdrProgram.uniforms["u_texture"] as Uniform1i
+  internalUniforms.push({ uniform: u_resolution_hdr, update: () => u_resolution_hdr.setValue(canvasSize()) })
+  internalUniforms.push({ uniform: u_texture, update: () => u_texture.setValue(0) })
 
-  /**
-   * Hdr framebuffer setup
-   */
-  const {
-    texture: hdrTexture,
-    frameBuffer: hdrFbo
-  } = createFrameBuffer(gl, canvas.width, canvas.height, TextureFormats.HalfFloat)
+  const hdrPass = new NodeRenderPass(context, hdrProgram)
+  mainPass.dependents.push(hdrPass)
 
-  const start = Date.now()
+  setRenderPasses({
+    mainPass,
+    hdrPass
+  })
 
-  const render = () => {
-    
-    /**
-     * Render to buffer
-     */
-    program.use();
-    
-    gl.bindFramebuffer(gl.FRAMEBUFFER, hdrFbo)
+  // Fix later xd
+  gl.activeTexture(gl.TEXTURE0)
+  gl.bindTexture(gl.TEXTURE_2D, hdrFb.texture)
 
-    gl.clearColor(0, 0, 0, 0)
-    gl.clear(gl.COLOR_BUFFER_BIT)
-    
-    const [w, h] = canvasSize()
-    const [dbw, dbh] = drawBufferSize()
-    
-    program.setUniform2f("u_resolution", dbw, dbh);
-    // program.setUniform2f("u_canvasSize", w, h);
-    program.setUniform1f("u_time", (Date.now() - start) / 1000.0);
-  
-    gl.drawArrays(gl.TRIANGLES, 0, 3)
-    
-    /**
-     * Render to screen from buffer
-     */
-    postProgram.use();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-
-    gl.clearColor(0, 0, 0, 0)
-    gl.clear(gl.COLOR_BUFFER_BIT)
-    
-    
-    postProgram.setUniform2f("u_resolution", dbw, dbh);
-    
-
-    gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, hdrTexture)
-    postProgram.setUniform1i("u_texture", 0);
-    postProgram.setUniform1f("u_gamma", 1.0);
-    postProgram.setUniform1f("u_exposure", 2.0);
-  
-    gl.drawArrays(gl.TRIANGLES, 0, 3)
-  }
+  internalUniforms.forEach(({ update }) => update())
 
   toast("Graphics initialised")
 
+  mainPass.enqueueUpdate()
 
-  return {
-    render: () => requestAnimationFrame(render)
-  }
+  return context
 }
 
 export default initRender
