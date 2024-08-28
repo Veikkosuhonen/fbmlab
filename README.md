@@ -8,3 +8,5 @@
 Fbm-based image generator
 
 At its current state you may get skill-issued, because the parameters are not very intuitive
+
+<img src="https://github.com/user-attachments/assets/cbf92f4d-4fc2-4dfd-82e8-b272705b1e09" height="400" />
