@@ -20,9 +20,6 @@ uniform vec3 u_col3; /// default 1.0 1.0 1.0
 uniform float u_smoothness; /// default 0.5 min 0.08 max 1.0
 uniform float u_voronoi; /// default 1.0 min -2.0 max 2.0
 
-uniform vec2 u_qOff;
-uniform vec2 u_rOff0;
-uniform vec2 u_rOff1;
 uniform float u_fScale; /// default 4.0 min 0.1 max 16.0
 
 #define PLATFORM_WEBGL
@@ -60,11 +57,11 @@ void main() {
 
   vec2 q;
   q.x = fbm(st);
-  q.y = fbm(st + u_qOff);
+  q.y = fbm(st);
 
   vec2 r;
-  r.x = fbm(st + u_fScale * q + u_rOff0 + u_time);
-  r.y = fbm(st + u_fScale * q + u_rOff1 + u_time);
+  r.x = fbm(st + u_fScale * q + u_time);
+  r.y = fbm(st + u_fScale * q + u_time);
 
   float f = fbm(st + u_fScale * r);
 

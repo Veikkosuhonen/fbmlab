@@ -54,7 +54,7 @@ const UniformControl: Component<{
         }}
         min={props.uniform.min}
         max={props.uniform.max}
-        step={(props.uniform.max - props.uniform.min) / 100.0}
+        step={(props.uniform.max - props.uniform.min) / 200.0}
       />
     )
   }
@@ -70,7 +70,7 @@ const UniformControl: Component<{
         }}
         min={props.uniform.min}
         max={props.uniform.max}
-        step={(props.uniform.max - props.uniform.min) / 100.0}
+        step={(props.uniform.max - props.uniform.min) / 200.0}
       />
     )
   }
