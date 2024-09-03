@@ -10,6 +10,7 @@
     "@ark-ui/solid": "^3.8.0",
     "@solidjs/router": "^0.14.1",
     "@solidjs/start": "^1.0.6",
+    "@thednp/solid-color-picker": "^0.0.9",
     "autoprefixer": "^10.4.19",
     "classnames": "^2.5.1",
     "postcss": "^8.4.38",
