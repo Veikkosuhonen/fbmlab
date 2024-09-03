@@ -19,12 +19,12 @@ export default function Home() {
 
   return (
     <main class="w-[100vw] h-[100vh] flex">
-      <div class="w-[20vw] p-1">
+      <div class="w-[20vw] p-1 border-r-2 border-slate-100">
         <For each={Object.entries(renderPasses)}>{([name, pass]) => (
-          <div class="p-1 m-1">
+          <div class="p-1 m-1 mt-3">
             <h2 class="mb-2 font-medium">{name}</h2>
             <For each={pass.shader.getExternalUniforms()}>{(uniform) => (
-              <div class="mb-2">
+              <div class="mb-2 p-2 bg-slate-200 border border-slate-100 rounded-md">
                 <UniformControl uniform={uniform} renderPass={pass} />
               </div>
             )}</For>

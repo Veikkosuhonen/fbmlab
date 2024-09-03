@@ -11,11 +11,15 @@ uniform float u_time;
 uniform float u_lacunarity; /// default 2.0 min 0.0 max 10.0
 uniform float u_persistence; /// default 0.5 min 0.0 max 1.5
 uniform float u_scale; /// default 3.0 min 0.1 max 10.0
+uniform vec2 u_offset;
 uniform float u_rot1; /// default 0.7 min 0.0 max 1.6
 
+uniform vec3 u_col0; /// default 1.0 1.0 1.0
+uniform float u_pow0; /// default 1.0 min 0.01 max 10.0
 uniform vec3 u_col1; /// default 1.0 1.0 1.0
+uniform float u_pow1; /// default 1.0 min 0.01 max 10.0
 uniform vec3 u_col2; /// default 1.0 1.0 1.0
-uniform vec3 u_col3; /// default 1.0 1.0 1.0
+uniform float u_pow2; /// default 1.0 min 0.01 max 10.0
 
 uniform float u_smoothness; /// default 0.5 min 0.08 max 1.0
 uniform float u_voronoi; /// default 1.0 min -2.0 max 2.0
@@ -51,6 +55,7 @@ void main() {
 
   vec2 st = fragCoord / u_resolution;
   st.s *= u_resolution.s / u_resolution.t;
+  st += u_offset;
   st *= u_scale;
 
   vec3 color = vec3(0.0, 0.0, 0.0);
@@ -65,9 +70,9 @@ void main() {
 
   float f = fbm(st + u_fScale * r);
 
-  color = mix(color, u_col1, clamp(0.0, 1.0, f));
-  color = mix(color, u_col2, clamp(0.0, 1.0, length(q)));
-  color = mix(color, u_col3, clamp(0.0, 1.0, dot(r, q)));
+  color = mix(color, u_col0, pow(clamp(0.0, 1.0, f), u_pow0));
+  color = mix(color, u_col1, pow(clamp(0.0, 1.0, length(q)), u_pow1));
+  color = mix(color, u_col2, pow(clamp(0.0, 1.0, dot(r, q)), u_pow2));
   
   gl_FragColor = vec4(color, 1.0);
 }
