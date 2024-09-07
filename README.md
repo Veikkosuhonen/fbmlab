@@ -4,7 +4,7 @@
   <img src="https://github.com/user-attachments/assets/db0c5faf-5f00-4bdf-8d08-79641563a15d" height="200"/>
 </div>
 
-# 🌈 🖌️ Colorlab 🖌️ 🌈
+# 🌈 🖌️ FBMlab 🖌️ 🌈
 
 Fbm-based image generator
 
