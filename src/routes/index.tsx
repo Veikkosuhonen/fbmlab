@@ -1,10 +1,10 @@
-import { Component, For, onMount } from "solid-js";
+import { Component, createSignal, For, onMount } from "solid-js";
 import { clientOnly } from "@solidjs/start"
 import initRender, { renderPasses } from "~/lib/render";
 import { Slider } from '@ark-ui/solid'
 import { Uniform, Uniform1f, Uniform2f, Uniform3f } from "~/lib/Shader";
 import { NodeRenderPass } from "~/lib/NodeRenderPass";
-const ColorPicker = clientOnly(() => import("./ColorPicker"))
+const ColorPicker = clientOnly(() => import("../components/ColorPicker"))
 
 export default function Home() {
   let canvas: HTMLCanvasElement|undefined;
@@ -19,12 +19,12 @@ export default function Home() {
 
   return (
     <main class="w-[100vw] h-[100vh] flex">
-      <div class="w-[20vw] p-1 border-r-2 border-slate-100">
+      <div class="w-[20vw] p-1 border-r-2 border-slate-100 dark:border-slate-700">
         <For each={Object.entries(renderPasses)}>{([name, pass]) => (
           <div class="p-1 m-1 mt-3">
             <h2 class="mb-2 font-medium">{name}</h2>
             <For each={pass.shader.getExternalUniforms()}>{(uniform) => (
-              <div class="mb-2 p-2 bg-slate-200 border border-slate-100 rounded-md">
+              <div class="mb-2 p-2 bg-slate-200 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-md">
                 <UniformControl uniform={uniform} renderPass={pass} />
               </div>
             )}</For>
@@ -68,8 +68,8 @@ const UniformControl: Component<{
           props.uniform.setValue(v)
           props.renderPass.enqueueUpdate()
         }}
-        min={props.uniform.min}
-        max={props.uniform.max}
+        min={-2}
+        max={2}
         step={(props.uniform.max - props.uniform.min) / 200.0}
       />
     )
@@ -115,25 +115,33 @@ const Vec2Slider: Component<{
   max: number,
   step: number
 }> = (props) => {
+  let knob: HTMLDivElement | undefined;
+  let dragZone: HTMLDivElement | undefined;
+  const [isDragging, setIsDragging] = createSignal(false)
+
+  onMount(() => {
+    document.addEventListener('mouseup', () => setIsDragging(false))
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging() || !knob || !dragZone) return
+      const rect = dragZone.getBoundingClientRect()
+      const x = Math.min(Math.max(0, e.clientX - 8 - rect.left), rect.width - 16)
+      const y = Math.min(Math.max(0, e.clientY - 8 - rect.top), rect.height - 16)
+      const nx = (x / rect.width) * (props.max - props.min) + props.min
+      const ny = (y / rect.height) * (props.max - props.min) + props.min
+      props.setValue([nx, -ny])
+      knob.style.left = `${x}px`
+      knob.style.top = `${y}px`
+    })
+  })
+
   return (
     <div>
       <label>{props.label}</label>
-      <StyledSlider
-        label="x"
-        value={[props.value[0]]}
-        onValueChange={e => props.setValue([e.value[0], props.value[1]])}
-        min={props.min}
-        max={props.max}
-        step={props.step}
-      />
-      <StyledSlider
-        label="y"
-        value={[props.value[1]]}
-        onValueChange={e => props.setValue([props.value[0], e.value[0]])}
-        min={props.min}
-        max={props.max}
-        step={props.step}
-      />
+      <div ref={dragZone} class="bg-slate-200 dark:bg-slate-700 border border-slate-100 dark:border-slate-600 shadow-inner w-32 h-32 rounded relative">
+        <div ref={knob} class="rounded-sm shadow-sm w-4 h-4 bg-slate-50 cursor-pointer absolute left-[3.5rem] top-[3.5rem]"
+          onMouseDown={() => setIsDragging(true)}
+        />
+      </div>
     </div>
   )
 }
