@@ -4,6 +4,8 @@ import initRender, { renderPasses } from "~/lib/render";
 import { Slider } from '@ark-ui/solid'
 import { Uniform, Uniform1f, Uniform2f, Uniform3f } from "~/lib/Shader";
 import { NodeRenderPass } from "~/lib/NodeRenderPass";
+import { setupCanvasEventHandlers } from "~/lib/canvasEvents";
+import { Help } from "~/components/Help";
 const ColorPicker = clientOnly(() => import("../components/ColorPicker"))
 
 export default function Home() {
@@ -14,25 +16,29 @@ export default function Home() {
       canvas.width = window.innerWidth * 0.8;
       canvas.height = window.innerHeight;
       initRender(canvas)
+      setupCanvasEventHandlers(canvas)
     }
   })
 
   return (
-    <main class="w-[100vw] h-[100vh] flex">
-      <div class="w-[20vw] p-1 border-r-2 border-slate-100 dark:border-slate-700">
-        <For each={Object.entries(renderPasses)}>{([name, pass]) => (
-          <div class="p-1 m-1 mt-3">
-            <h2 class="mb-2 font-medium">{name}</h2>
-            <For each={pass.shader.getExternalUniforms()}>{(uniform) => (
-              <div class="mb-2 p-2 bg-slate-200 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-md">
-                <UniformControl uniform={uniform} renderPass={pass} />
-              </div>
-            )}</For>
-          </div>
-        )}</For>
-      </div>
-      <div class="w-[80vw] h-[100vh]">
-        <canvas ref={canvas} width={1280} height={500} />
+    <main class="w-[100vw] min-h-[100vh]">
+      <Help />
+      <div class="flex">
+        <div class="w-[20vw] p-1 border-r-2 border-slate-100 dark:border-slate-700">
+          <For each={Object.entries(renderPasses)}>{([name, pass]) => (
+            <div class="p-1 m-1 mt-3">
+              <h2 class="mb-2 font-medium">{name}</h2>
+              <For each={pass.shader.getExternalUniforms()}>{(uniform) => (
+                <div class="mb-2 p-2 bg-slate-200 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-md">
+                  <UniformControl uniform={uniform} renderPass={pass} />
+                </div>
+              )}</For>
+            </div>
+          )}</For>
+        </div>
+        <div class="w-[80vw] h-[100vh]">
+          <canvas ref={canvas} width={1280} height={500} class="cursor-grab" />
+        </div>
       </div>
     </main>
   );

@@ -4,7 +4,7 @@ import { GLResource } from "./GLResource";
 import { GLContext } from "./GLContext";
 import { parseShaderUniforms } from "./shaderUniformParser";
 
-const internalUniforms = ["u_resolution", "u_texture"]
+const internalUniforms = ["u_resolution", "u_texture", "u_position"]
 
 class Shader extends GLResource {
   program: WebGLProgram;

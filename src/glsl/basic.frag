@@ -11,7 +11,7 @@ uniform float u_time;
 uniform float u_lacunarity; /// default 2.0 min 0.0 max 10.0
 uniform float u_persistence; /// default 0.5 min 0.0 max 1.5
 uniform float u_scale; /// default 3.0 min 0.1 max 10.0
-uniform vec2 u_offset;
+uniform vec2 u_position;
 uniform float u_rot1; /// default 0.7 min 0.0 max 1.6
 
 uniform vec3 u_col0; /// default 1.0 1.0 1.0
@@ -55,7 +55,7 @@ void main() {
 
   vec2 st = fragCoord / u_resolution;
   st.s *= u_resolution.s / u_resolution.t;
-  st += u_offset;
+  st += u_position;
   st *= u_scale;
 
   vec3 color = vec3(0.0, 0.0, 0.0);

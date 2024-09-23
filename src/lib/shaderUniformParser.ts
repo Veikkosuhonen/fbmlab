@@ -10,7 +10,6 @@ export const parseShaderUniforms = (shaderSource: string): Uniform<keyof Uniform
 
     if (match) {
       const [, type, name, _defaultStr, defaultValue, minValue, maxValue] = match
-      console.log(match)
     
       switch (type) {
         case "float":
