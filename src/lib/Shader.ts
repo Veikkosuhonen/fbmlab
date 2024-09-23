@@ -5,6 +5,7 @@ import { GLContext } from "./GLContext";
 import { parseShaderUniforms } from "./shaderUniformParser";
 
 const internalUniforms = ["u_resolution", "u_texture", "u_position"]
+const urlIncludedUniforms = ["u_position"]
 
 class Shader extends GLResource {
   program: WebGLProgram;
@@ -41,6 +42,10 @@ class Shader extends GLResource {
 
   getExternalUniforms() {
     return Object.keys(this.uniforms).filter(k => !this.internalUniforms[k]).map(k => this.uniforms[k])
+  }
+
+  getUrlIncludedUniforms() {
+    return Object.keys(this.uniforms).filter(k => !this.internalUniforms[k] || urlIncludedUniforms.includes(k)).map(k => this.uniforms[k])
   }
 
   syncUniforms() {

@@ -1,7 +1,9 @@
 import { createSignal, onMount, Show } from "solid-js"
+import { getShareLink } from "~/lib/urlParams"
 
-export const Help = () => {
+export const Toolbar = () => {
   const [isOpen, setIsOpen] = createSignal(false)
+  const [shareButtonText, setShareButtonText] = createSignal("Share current image")
 
   // First visit? Show help
   onMount(() => {
@@ -41,9 +43,16 @@ export const Help = () => {
           </div>
         </div>
       </Show>
-      <div class="flex">
+      <div class="flex justify-between">
         <button onClick={() => setIsOpen(!isOpen())}>{isOpen() ? "Close help" : "Help"}</button>
-        <a href="https://github.com/Veikkosuhonen/fbmlab" target="_blank" class="ml-auto underline">Source code</a>
+        <button onClick={() => {
+          const shareLink = getShareLink()
+          console.log(shareLink)
+          navigator.clipboard.writeText(shareLink)
+          setShareButtonText("Link copied to clipboard!")
+          setTimeout(() => setShareButtonText("Share current image"), 1500)
+        }}>{shareButtonText()}</button>
+        <a href="https://github.com/Veikkosuhonen/fbmlab" target="_blank" class="underline">Source code</a>
       </div>
     </div>
   )

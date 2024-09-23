@@ -5,7 +5,8 @@ import { Slider } from '@ark-ui/solid'
 import { Uniform, Uniform1f, Uniform2f, Uniform3f } from "~/lib/Shader";
 import { NodeRenderPass } from "~/lib/NodeRenderPass";
 import { setupCanvasEventHandlers } from "~/lib/canvasEvents";
-import { Help } from "~/components/Help";
+import { Toolbar } from "~/components/Toolbar";
+import { applyShareLink } from "~/lib/urlParams";
 const ColorPicker = clientOnly(() => import("../components/ColorPicker"))
 
 export default function Home() {
@@ -17,12 +18,13 @@ export default function Home() {
       canvas.height = window.innerHeight;
       initRender(canvas)
       setupCanvasEventHandlers(canvas)
+      applyShareLink()
     }
   })
 
   return (
     <main class="w-[100vw] min-h-[100vh]">
-      <Help />
+      <Toolbar />
       <div class="flex">
         <div class="w-[20vw] p-1 border-r-2 border-slate-100 dark:border-slate-700">
           <For each={Object.entries(renderPasses)}>{([name, pass]) => (
